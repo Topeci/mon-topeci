@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// ---------- Prisma Generator ----------
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------- Datasource ----------
+datasource db {
+  provider = "mongodb"
+}
+
+// ---------- USER ----------
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  email     String    @unique
+  password  String
+  phone     String?
+  role      Role      @default(CUSTOMER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  address   Address?
+  orders    Order[]
+  cart      Cart?
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+// ---------- ADDRESS ----------
+model Address {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  country   String
+  city      String
+  street    String
+  postal    String?
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// ---------- CATEGORY ----------
+model Category {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  products Product[]
+}
+
+// ---------- PRODUCT ----------
+model Product {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  image       String?
+  categoryId  String        @db.ObjectId
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  category    Category      @relation(fields: [categoryId], references: [id])
+
+  // Inverse relations
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+}
+
+// ---------- ORDER ----------
+model Order {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String        @db.ObjectId
+  status     OrderStatus   @default(PENDING)
+  total      Float
+  createdAt  DateTime      @default(now())
+
+  user       User          @relation(fields: [userId], references: [id])
+  items      OrderItem[]
+  payment    Payment?
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// ---------- ORDER ITEM ----------
+model OrderItem {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  orderId    String     @db.ObjectId
+  productId  String     @db.ObjectId
+  quantity   Int
+  price      Float
+
+  order      Order      @relation(fields: [orderId], references: [id])
+  product    Product    @relation(fields: [productId], references: [id])
+}
+
+// ---------- PAYMENT ----------
+model Payment {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String         @unique @db.ObjectId
+  method      PaymentMethod
+  amount      Float
+  status      PaymentStatus  @default(PENDING)
+  createdAt   DateTime       @default(now())
+
+  order       Order          @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentMethod {
+  CARD
+  MOBILE_MONEY
+  PAYPAL
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+// ---------- CART ----------
+model Cart {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String      @unique @db.ObjectId
+
+  user     User        @relation(fields: [userId], references: [id])
+  items    CartItem[]
+}
+
+// ---------- CART ITEM ----------
+model CartItem {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  cartId     String     @db.ObjectId
+  productId  String     @db.ObjectId
+  quantity   Int
+
+  cart       Cart       @relation(fields: [cartId], references: [id])
+  product    Product    @relation(fields: [productId], references: [id])
+}
