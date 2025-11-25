@@ -126,35 +126,35 @@ Dimanche : Fermé`,
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
               <button
                 onClick={() => setOpenDialog("refund")}
-                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-indie-flower underline underline-offset-4"
+                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-glacial-indifference underline underline-offset-4"
               >
                 Politique de remboursement
               </button>
 
               <button
                 onClick={() => setOpenDialog("privacy")}
-                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-indie-flower underline underline-offset-4"
+                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-glacial-indifference underline underline-offset-4"
               >
                 Politique de confidentialité
               </button>
 
               <button
                 onClick={() => setOpenDialog("terms")}
-                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-indie-flower underline underline-offset-4"
+                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-glacial-indifference underline underline-offset-4"
               >
                 Conditions générales de vente
               </button>
 
               <button
                 onClick={() => setOpenDialog("legal")}
-                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-indie-flower underline underline-offset-4"
+                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-glacial-indifference underline underline-offset-4"
               >
                 Mentions légales
               </button>
 
               <button
                 onClick={() => setOpenDialog("contact")}
-                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-indie-flower underline underline-offset-4"
+                className="text-gray-600 dark:text-gray-400 hover:text-[#BE356A] dark:hover:text-[#D68E54] transition-colors font-glacial-indifference underline underline-offset-4"
               >
                 Coordonnées
               </button>
@@ -172,7 +172,7 @@ Dimanche : Fermé`,
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white font-indie-flower">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white font-glacial-indifference">
                   {legalContent[openDialog as keyof typeof legalContent].title}
                 </h3>
                 <button
@@ -212,7 +212,7 @@ Dimanche : Fermé`,
               <div className="flex justify-end p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750">
                 <button
                   onClick={closeDialog}
-                  className="px-6 py-2 bg-[#BE356A] hover:bg-[#a52e5b] text-white rounded-lg font-medium transition-colors font-indie-flower"
+                  className="px-6 py-2 bg-[#BE356A] hover:bg-[#a52e5b] text-white rounded-lg font-medium transition-colors font-glacial-indifference"
                 >
                   Fermer
                 </button>

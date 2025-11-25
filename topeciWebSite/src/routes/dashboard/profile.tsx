@@ -1,24 +1,8 @@
-/**
- * La page "Profil"
- * Espace :Nom, Prénom, Email
- * fontionnalité : Modifier le profil (illustrer par l'icone stylo), un dialog avec l'arriere plan transparent
- * et une petite note sur le formulaire "Cette adresse e-mail est utilisée pour la connexion et les mises à jour des commandes."
- * bouton annuler et enregistrer
- *
- * Espace : Adresses
- * Adresses par défaut cote d'ivoire :
- * ajouter l'adresse : cliquer (ceci est mon adresse par défaut)
- * modifier l'adresse :
- * - (pays/région : NB: selection de tout les pays de A-Z)
- * - prénom , nom, entreprise, adresse, appartement (facultatif), code postal, ville, télphone(indicatif, choix du pays)
- * lien supprimer, annuler, bouton enregister
- */
-
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { HeaderDashboard } from "../../components/layout/headerDashboard";
 import { FooterDashboard } from "../../components/layout/footerDashboard";
-
+import ReactCountryFlag from "react-country-flag";
 import { Pencil, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/profile")({
@@ -52,25 +36,10 @@ function RouteComponent() {
   const [userProfile, setUserProfile] = useState<UserProfile>({
     firstName: "",
     lastName: "",
-    email: "jeanmarc.koffi@topecishop.com",
+    email: "",
   });
 
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: "1",
-      isDefault: true,
-      country: "CI",
-      firstName: "Jean-Marc",
-      lastName: "KOFFI",
-      company: "TOPECI Shop",
-      address: "Plateau, Rue des Commerce",
-      apartment: "Bâtiment A, étage 2",
-      postalCode: "01 BP",
-      city: "Abidjan",
-      phoneCode: "+225",
-      phoneNumber: "0708070908",
-    },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
 
   // États pour les modales
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -90,32 +59,35 @@ function RouteComponent() {
     phoneNumber: "",
   });
 
-  // Liste des pays (exemple)
+  // Liste des pays avec codes et drapeaux
   const countries = [
-    { code: "CI", name: "Côte d'Ivoire" },
-    { code: "FR", name: "France" },
-    { code: "US", name: "États-Unis" },
-    { code: "CA", name: "Canada" },
-    { code: "BE", name: "Belgique" },
-    { code: "CH", name: "Suisse" },
-    { code: "SN", name: "Sénégal" },
-    { code: "ML", name: "Mali" },
-    { code: "BF", name: "Burkina Faso" },
-    { code: "GN", name: "Guinée" },
-    // Ajouter tous les pays A-Z...
+    { code: "CI", name: "Côte d'Ivoire", flag: "CI" },
+    { code: "FR", name: "France", flag: "FR" },
+    { code: "CEDEAO", name: "CEDEAO", flag: "CEDEAO" },
+    { code: "CA", name: "Canada", flag: "CA" },
+    { code: "US", name: "USA", flag: "US" },
+    { code: "CH", name: "Suisse", flag: "CH" },
+    { code: "BE", name: "Belgique", flag: "BE" },
+    { code: "GB", name: "Royaume-Uni", flag: "GB" },
+    { code: "IT", name: "Italie", flag: "IT" },
+    { code: "ES", name: "Espagne", flag: "ES" },
+    { code: "DE", name: "Allemagne", flag: "DE" },
+    { code: "NL", name: "Pays-Bas", flag: "NL" },
+    { code: "LU", name: "Luxembourg", flag: "LU" },
   ];
 
   const phoneCodes = [
-    { code: "+225", country: "Côte d'Ivoire" },
-    { code: "+33", country: "France" },
-    { code: "+1", country: "États-Unis/Canada" },
-    { code: "+32", country: "Belgique" },
-    { code: "+41", country: "Suisse" },
-    { code: "+221", country: "Sénégal" },
-    { code: "+223", country: "Mali" },
-    { code: "+226", country: "Burkina Faso" },
-    { code: "+224", country: "Guinée" },
-    // Ajouter tous les indicatifs...
+    { code: "+225", country: "CI", countryName: "Côte d'Ivoire" },
+    { code: "+33", country: "FR", countryName: "France" },
+    { code: "+1", country: "US", countryName: "États-Unis/Canada" },
+    { code: "+32", country: "BE", countryName: "Belgique" },
+    { code: "+41", country: "CH", countryName: "Suisse" },
+    { code: "+44", country: "GB", countryName: "Royaume-Uni" },
+    { code: "+39", country: "IT", countryName: "Italie" },
+    { code: "+34", country: "ES", countryName: "Espagne" },
+    { code: "+49", country: "DE", countryName: "Allemagne" },
+    { code: "+31", country: "NL", countryName: "Pays-Bas" },
+    { code: "+352", country: "LU", countryName: "Luxembourg" },
   ];
 
   // Gestionnaires pour le profil
@@ -183,6 +155,12 @@ function RouteComponent() {
     );
   };
 
+  // Fonction pour obtenir le code pays à partir du code téléphonique
+  const getCountryFromPhoneCode = (phoneCode: string) => {
+    const phoneInfo = phoneCodes.find((phone) => phone.code === phoneCode);
+    return phoneInfo ? phoneInfo.country : "CI";
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <HeaderDashboard />
@@ -197,7 +175,7 @@ function RouteComponent() {
           {/* Ligne Nom */}
           <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <span className="text-sm font-indie-flower font-medium text-gray-500 dark:text-gray-400">
+              <span className="text-sm font-glacial-indifference font-medium text-gray-500 dark:text-gray-400">
                 Nom
               </span>
               <button
@@ -213,79 +191,127 @@ function RouteComponent() {
           {/* Ligne Email */}
           <div className="flex justify-between items-center py-2">
             <div className="flex items-center space-x-3">
-              <span className="text-sm font-indie-flower font-medium text-gray-500 dark:text-gray-400">
+              <span className="text-sm font-glacial-indifference font-medium text-gray-500 dark:text-gray-400">
                 E-mail
               </span>
             </div>
           </div>
-          <span className="text-sm font-indie-flower text-gray-900 dark:text-white font-medium">
+          <span className="text-sm font-glacial-indifference text-gray-900 dark:text-white font-medium">
             {userProfile.email}
           </span>
         </div>
 
-        {/* Section Adresses - LAISSÉE EXACTEMENT COMME DANS LE CODE ORIGINAL */}
+        {/* Section Adresses */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mr-15">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Adresses
             </h2>
             <button
               onClick={handleAddAddress}
-              className="flex items-center space-x-2 text-[#BE356A] px-2 py-2 rounded-lg font-medium transition-colors"
+              className="flex items-center space-x-2 bg-[#BE356A] text-white px-4 py-2 rounded-lg font-medium transition-colors hover:bg-[#a52e5b]"
             >
               <Plus className="w-4 h-4" />
-              <span>Ajouter</span>
+              <span>Ajouter une adresse</span>
             </button>
           </div>
 
-          <div className="space-y-4">
-            {addresses.map((address) => (
-              <div
-                key={address.id}
-                className="hover:bg-gray-100 rounded-2xl w-60"
-              >
+          <div className="space-y-6">
+            {addresses.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 dark:text-gray-400 font-glacial-indifference">
+                  Aucune adresse enregistrée
+                </p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                  Ajoutez votre première adresse pour faciliter vos achats
+                </p>
+              </div>
+            ) : (
+              addresses.map((address) => (
                 <div
-                  className="flex justify-between items-center"
-                  onClick={() => handleEditAddress(address)}
+                  key={address.id}
+                  className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
                 >
-                  {address.isDefault && (
-                    <div className="inline-flex items-center space-x-2 py-1 mr-9 text-gray-400 font-indie-flower text-sm font-medium">
-                      <span>Adresse par défaut</span>
-                      <button className="flex items-center space-x-2 text-[#D68E54] transition-colors">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center space-x-3">
+                      {address.isDefault && (
+                        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                          Adresse par défaut
+                        </span>
+                      )}
+                      <button
+                        onClick={() => handleEditAddress(address)}
+                        className="flex items-center space-x-1 text-[#BE356A] transition-colors p-1"
+                        title="Modifier l'adresse"
+                      >
                         <Pencil className="w-4 h-4" />
                       </button>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-1">
-                  <div>
-                    <p className="">
-                      {countries.find((c) => c.code === address.country)?.name}
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <ReactCountryFlag
+                        countryCode={address.country}
+                        svg
+                        style={{
+                          width: "20px",
+                          height: "15px",
+                        }}
+                      />
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {
+                          countries.find((c) => c.code === address.country)
+                            ?.name
+                        }
+                      </p>
+                    </div>
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {address.firstName} {address.lastName}
+                    </p>
+
+                    {address.company && (
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {address.company}
+                      </p>
+                    )}
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {address.address}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {address.postalCode} {address.city}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {address.phoneCode} {address.phoneNumber}
                     </p>
                   </div>
-                </div>
 
-                <div className="flex flex-wrap gap-3">
-                  {!address.isDefault && (
-                    <>
-                      <button
-                        onClick={() => handleSetDefaultAddress(address.id)}
-                        className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                      >
-                        Définir comme adresse par défaut
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAddress(address.id)}
-                        className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
-                      >
-                        Supprimer
-                      </button>
-                    </>
-                  )}
+                  <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    {!address.isDefault && (
+                      <>
+                        <button
+                          onClick={() => handleSetDefaultAddress(address.id)}
+                          className="text-sm font-medium text-[#BE356A] hover:text-[#a52e5b] transition-colors"
+                        >
+                          Définir comme adresse par défaut
+                        </button>
+                        <span className="text-gray-300">•</span>
+                        <button
+                          onClick={() => handleDeleteAddress(address.id)}
+                          className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                        >
+                          Supprimer
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </main>
@@ -296,7 +322,7 @@ function RouteComponent() {
       {isEditProfileOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg md:text-xl font-indie-flower font-extrabold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4">
               Modifier le profil
             </h3>
 
@@ -304,7 +330,7 @@ function RouteComponent() {
               <div>
                 <input
                   type="text"
-                  placeholder="prénom"
+                  placeholder="Prénom"
                   value={userProfile.firstName}
                   onChange={(e) =>
                     setUserProfile({
@@ -312,19 +338,19 @@ function RouteComponent() {
                       firstName: e.target.value,
                     })
                   }
-                  className="w-full font-indie-flower px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#BE356A] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#BE356A] focus:border-transparent dark:bg-gray-700 dark:text-white font-glacial-indifference"
                 />
               </div>
 
               <div>
                 <input
                   type="text"
-                  placeholder="nom"
+                  placeholder="Nom"
                   value={userProfile.lastName}
                   onChange={(e) =>
                     setUserProfile({ ...userProfile, lastName: e.target.value })
                   }
-                  className="w-full font-indie-flower px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#D68E54] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#BE356A] focus:border-transparent dark:bg-gray-700 dark:text-white font-glacial-indifference"
                 />
               </div>
 
@@ -336,9 +362,9 @@ function RouteComponent() {
                   onChange={(e) =>
                     setUserProfile({ ...userProfile, email: e.target.value })
                   }
-                  className="w-full font-indie-flower px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#D68E54] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#BE356A] focus:border-transparent dark:bg-gray-700 dark:text-white font-glacial-indifference"
                 />
-                <p className="text-xs font-indie-flower text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-glacial-indifference">
                   Cette adresse e-mail est utilisée pour la connexion et les
                   mises à jour des commandes.
                 </p>
@@ -348,13 +374,13 @@ function RouteComponent() {
             <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6">
               <button
                 onClick={() => setIsEditProfileOpen(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors order-2 sm:order-1"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors font-glacial-indifference"
               >
                 Annuler
               </button>
               <button
                 onClick={handleSaveProfile}
-                className="px-6 py-2 bg-[#BE356A] text-white rounded-lg font-medium transition-colors order-1 sm:order-2"
+                className="px-6 py-2 bg-[#BE356A] text-white rounded-lg font-medium transition-colors font-glacial-indifference"
               >
                 Enregistrer
               </button>
@@ -367,11 +393,12 @@ function RouteComponent() {
       {(isAddAddressOpen || editingAddress) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-4 md:p-6 w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-6">
               {editingAddress ? "Modifier l'adresse" : "Ajouter une adresse"}
             </h3>
+
             {!editingAddress && (
-              <div className="md:col-span-2 mb-3 font-indie-flower">
+              <div className="mb-4">
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -382,308 +409,291 @@ function RouteComponent() {
                         isDefault: e.target.checked,
                       })
                     }
-                    className="rounded border-gray-300 text-[#D68E54] focus:ring-[#D68E54]"
+                    className="rounded border-gray-300 text-[#BE356A] focus:ring-[#BE356A]"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Ceci est mon adresse par défaut
+                  <span className="text-sm text-gray-700 dark:text-gray-300 font-glacial-indifference">
+                    Définir comme adresse par défaut
                   </span>
                 </label>
               </div>
             )}
 
-            <div className="relative mb-3">
-              {/* Texte fixe à l'intérieur du champ */}
-              <span className="absolute left-3 top-1.5 text-gray-500 text-xs pointer-events-none font-indie-flower">
-                Pays/région *
-              </span>
-
-              <select
-                value={editingAddress?.country || newAddress.country}
-                onChange={(e) =>
-                  editingAddress
-                    ? setEditingAddress({
-                        ...editingAddress,
-                        country: e.target.value,
-                      })
-                    : setNewAddress({
-                        ...newAddress,
-                        country: e.target.value,
-                      })
-                }
-                className="w-full appearance-none px-3 pt-6 pb-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                            focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                            dark:bg-gray-700 dark:text-white transition-all duration-200 font-indie-flower text-sm"
-              >
-                <option value="" disabled hidden>
-                  Sélectionnez un pays
-                </option>
-                {countries.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* Flèche déroulante */}
-              <svg
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-2 mb-3">
-              {/* Champ : Prénom */}
+            <div className="space-y-4">
+              {/* Pays avec drapeau */}
               <div>
-                <input
-                  type="text"
-                  placeholder="Prénom"
-                  value={editingAddress?.firstName || newAddress.firstName}
-                  onChange={(e) =>
-                    editingAddress
-                      ? setEditingAddress({
-                          ...editingAddress,
-                          firstName: e.target.value,
-                        })
-                      : setNewAddress({
-                          ...newAddress,
-                          firstName: e.target.value,
-                        })
-                  }
-                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-                />
-              </div>
-
-              {/* Champ : Nom */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Nom"
-                  value={editingAddress?.lastName || newAddress.lastName}
-                  onChange={(e) =>
-                    editingAddress
-                      ? setEditingAddress({
-                          ...editingAddress,
-                          lastName: e.target.value,
-                        })
-                      : setNewAddress({
-                          ...newAddress,
-                          lastName: e.target.value,
-                        })
-                  }
-                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Champ : Entreprise */}
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="Entreprise (facultatif)"
-                value={editingAddress?.company || newAddress.company}
-                onChange={(e) =>
-                  editingAddress
-                    ? setEditingAddress({
-                        ...editingAddress,
-                        company: e.target.value,
-                      })
-                    : setNewAddress({
-                        ...newAddress,
-                        company: e.target.value,
-                      })
-                }
-                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-              />
-            </div>
-
-            {/* Champ : Adresse*/}
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="Adresse"
-                value={editingAddress?.address || newAddress.address}
-                onChange={(e) =>
-                  editingAddress
-                    ? setEditingAddress({
-                        ...editingAddress,
-                        address: e.target.value,
-                      })
-                    : setNewAddress({
-                        ...newAddress,
-                        address: e.target.value,
-                      })
-                }
-                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-2 mb-3">
-              {/* Champ : Code postal */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Code postal"
-                  value={editingAddress?.postalCode || newAddress.postalCode}
-                  onChange={(e) =>
-                    editingAddress
-                      ? setEditingAddress({
-                          ...editingAddress,
-                          postalCode: e.target.value,
-                        })
-                      : setNewAddress({
-                          ...newAddress,
-                          postalCode: e.target.value,
-                        })
-                  }
-                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-                />
-              </div>
-
-              {/* Champ : Ville*/}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Ville"
-                  value={editingAddress?.city || newAddress.city}
-                  onChange={(e) =>
-                    editingAddress
-                      ? setEditingAddress({
-                          ...editingAddress,
-                          city: e.target.value,
-                        })
-                      : setNewAddress({
-                          ...newAddress,
-                          city: e.target.value,
-                        })
-                  }
-                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          focus:outline-none focus:ring-1 focus:ring-[#BE356A] focus:border-[#BE356A] 
-                          dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-200 font-indie-flower text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="md:col-span-2 relative">
-              <div
-                className="flex flex-col border border-gray-300 dark:border-gray-600 rounded-lg 
-               focus-within:ring-2 focus-within:ring-[#BE356A] focus-within:border-[#BE356A]
-               dark:bg-gray-700 dark:text-white transition-all duration-200 px-3 py-2"
-              >
-                {/* Titre à l'intérieur du champ */}
-                <span className="text-gray-500 text-sm mb-1 font-indie-flower">
-                  Téléphone *
-                </span>
-
-                <div className="flex items-center space-x-2">
-                  {/* Sélecteur pays + indicatif */}
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 font-glacial-indifference">
+                  Pays/région *
+                </label>
+                <div className="relative">
                   <select
-                    value={editingAddress?.phoneCode || newAddress.phoneCode}
+                    value={editingAddress?.country || newAddress.country}
                     onChange={(e) => {
-                      const selectedCode = e.target.value;
-                      const selectedCountry =
-                        phoneCodes.find((phone) => phone.code === selectedCode)
-                          ?.country || "";
+                      const selectedCountry = e.target.value;
+                      const countryPhoneCode =
+                        phoneCodes.find(
+                          (phone) => phone.country === selectedCountry
+                        )?.code || "+225";
 
                       if (editingAddress) {
                         setEditingAddress({
                           ...editingAddress,
-                          phoneCode: selectedCode,
                           country: selectedCountry,
+                          phoneCode: countryPhoneCode,
                         });
                       } else {
                         setNewAddress({
                           ...newAddress,
-                          phoneCode: selectedCode,
                           country: selectedCountry,
+                          phoneCode: countryPhoneCode,
                         });
                       }
                     }}
-                    className="bg-transparent text-sm font-indie-flower outline-none cursor-pointer w-[15%]"
+                    className="w-full px-3 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg 
+                              focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                              dark:bg-gray-700 dark:text-white appearance-none font-glacial-indifference"
                   >
-                    {phoneCodes.map((phone) => (
-                      <option
-                        key={phone.code}
-                        value={phone.country}
-                        className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        {phone.country} ({phone.code})
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
                       </option>
                     ))}
                   </select>
 
-                  {/* Barre séparatrice */}
-                  <span className="text-gray-400">|</span>
+                  {/* Drapeau du pays sélectionné */}
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <ReactCountryFlag
+                      countryCode={
+                        editingAddress?.country || newAddress.country
+                      }
+                      svg
+                      style={{
+                        width: "20px",
+                        height: "15px",
+                      }}
+                    />
+                  </div>
 
-                  {/* Champ numéro */}
+                  {/* Flèche déroulante */}
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prénom et Nom */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <input
-                    type="tel"
-                    placeholder="6 12 34 56 78"
-                    value={
-                      editingAddress?.phoneNumber || newAddress.phoneNumber
-                    }
+                    type="text"
+                    placeholder="Prénom *"
+                    value={editingAddress?.firstName || newAddress.firstName}
                     onChange={(e) =>
                       editingAddress
                         ? setEditingAddress({
                             ...editingAddress,
-                            phoneNumber: e.target.value,
+                            firstName: e.target.value,
                           })
                         : setNewAddress({
                             ...newAddress,
-                            phoneNumber: e.target.value,
+                            firstName: e.target.value,
                           })
                     }
-                    className="flex-1 bg-transparent outline-none placeholder-gray-400 
-                   font-indie-flower text-sm"
+                    className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                            focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                            dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Nom *"
+                    value={editingAddress?.lastName || newAddress.lastName}
+                    onChange={(e) =>
+                      editingAddress
+                        ? setEditingAddress({
+                            ...editingAddress,
+                            lastName: e.target.value,
+                          })
+                        : setNewAddress({
+                            ...newAddress,
+                            lastName: e.target.value,
+                          })
+                    }
+                    className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                            focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                            dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
                   />
                 </div>
               </div>
+
+              {/* Entreprise */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Entreprise (facultatif)"
+                  value={editingAddress?.company || newAddress.company}
+                  onChange={(e) =>
+                    editingAddress
+                      ? setEditingAddress({
+                          ...editingAddress,
+                          company: e.target.value,
+                        })
+                      : setNewAddress({
+                          ...newAddress,
+                          company: e.target.value,
+                        })
+                  }
+                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                          focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                          dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                />
+              </div>
+
+              {/* Adresse */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Adresse *"
+                  value={editingAddress?.address || newAddress.address}
+                  onChange={(e) =>
+                    editingAddress
+                      ? setEditingAddress({
+                          ...editingAddress,
+                          address: e.target.value,
+                        })
+                      : setNewAddress({
+                          ...newAddress,
+                          address: e.target.value,
+                        })
+                  }
+                  className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                          focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                          dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                />
+              </div>
+
+              {/* Code postal et Ville */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Code postal *"
+                    value={editingAddress?.postalCode || newAddress.postalCode}
+                    onChange={(e) =>
+                      editingAddress
+                        ? setEditingAddress({
+                            ...editingAddress,
+                            postalCode: e.target.value,
+                          })
+                        : setNewAddress({
+                            ...newAddress,
+                            postalCode: e.target.value,
+                          })
+                    }
+                    className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                            focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                            dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Ville *"
+                    value={editingAddress?.city || newAddress.city}
+                    onChange={(e) =>
+                      editingAddress
+                        ? setEditingAddress({
+                            ...editingAddress,
+                            city: e.target.value,
+                          })
+                        : setNewAddress({
+                            ...newAddress,
+                            city: e.target.value,
+                          })
+                    }
+                    className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                            focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                            dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                  />
+                </div>
+              </div>
+
+              {/* Téléphone avec drapeau et indicatif */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 font-glacial-indifference">
+                  Téléphone *
+                </label>
+                  {/* Champ numéro de téléphone */}
+                  <div className="flex-1">
+                    <input
+                      type="tel"
+                      placeholder="Numéro de téléphone *"
+                      value={
+                        editingAddress?.phoneNumber || newAddress.phoneNumber
+                      }
+                      onChange={(e) =>
+                        editingAddress
+                          ? setEditingAddress({
+                              ...editingAddress,
+                              phoneNumber: e.target.value,
+                            })
+                          : setNewAddress({
+                              ...newAddress,
+                              phoneNumber: e.target.value,
+                            })
+                      }
+                      className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
+                              focus:outline-none focus:ring-2 focus:ring-[#BE356A] focus:border-[#BE356A] 
+                              dark:bg-gray-700 dark:text-white placeholder-gray-400 font-glacial-indifference"
+                    />
+                  </div>
+                
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-glacial-indifference">
+                  Incluez l'indicatif de votre pays. Exemple: +225 pour la Côte
+                  d'Ivoire
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-3 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-3 mt-8">
               {editingAddress && (
                 <button
                   onClick={() => handleDeleteAddress(editingAddress.id)}
-                  className="text-red-600 hover:text-red-700 font-medium font-indie-flower transition-colors w-full sm:w-auto text-center"
+                  className="text-red-600 hover:text-red-700 font-medium transition-colors w-full sm:w-auto text-center font-glacial-indifference"
                 >
-                  Supprimer
+                  Supprimer l'adresse
                 </button>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     setIsAddAddressOpen(false);
                     setEditingAddress(null);
                   }}
-                  className="px-4 py-2 text-gray-600 font-indie-flower dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors w-full sm:w-auto text-center"
+                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors w-full sm:w-auto text-center font-glacial-indifference hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSaveAddress}
-                  className="px-6 py-2 bg-[#BE356A] font-indie-flower text-white rounded-lg font-medium transition-colors w-full sm:w-auto text-center"
+                  className="px-6 py-2 bg-[#BE356A] text-white rounded-lg font-medium transition-colors w-full sm:w-auto text-center font-glacial-indifference hover:bg-[#a52e5b]"
                 >
-                  Enregistrer
+                  {editingAddress ? "Modifier" : "Ajouter l'adresse"}
                 </button>
               </div>
             </div>

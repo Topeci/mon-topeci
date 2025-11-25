@@ -75,7 +75,7 @@ function RouteComponent() {
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mt-2 font-glacial-indifference">
               {step === 1
-                ? "Saisissez votre adresse e-mail ou numéro de téléphone pour recevoir un code de vérification"
+                ? "Saisissez votre adresse e-mail ou numéro de téléphone (Précisez l'indicatif téléphonique) pour recevoir un code de vérification"
                 : "Entrez le code de vérification envoyé à votre " +
                   (loginMethod === "email" ? "e-mail" : "téléphone")}
             </p>

@@ -1,9 +1,6 @@
 /**
  * Page Panier TOPECI
- * - Liste des produits et résumé sur la même ligne en grand écran
- * - Icônes de paiement en bas du résumé
- * - Pas de livraison gratuite (message retiré)
- * - Détails de livraison gérés dans la page checkout
+ * Dans l'option Assistance rapide faudrait un lien qui envoie vers le whatsapp ou appel direct
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "../../contexts/CartContext";

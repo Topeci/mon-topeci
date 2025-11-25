@@ -15,8 +15,8 @@ export function HeaderDashboard() {
   }, []);
 
   const user = {
-    name: "Jean-Marc KOFFI",
-    email: "jeanmarc.koffi@topecishop.com",
+    name: "",
+    email: "",
     phone: "+225 07 08 07 09 08",
   };
 
@@ -98,21 +98,21 @@ export function HeaderDashboard() {
                   <div className="flex flex-col">
                     <Link
                       to="/dashboard/profile"
-                      className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-indie-flower"
+                      className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-glacial-indifference"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       Profil
                     </Link>
                     <Link
                       to="/dashboard/settings"
-                      className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-indie-flower"
+                      className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-glacial-indifference"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       Paramètres
                     </Link>
                     <button
                       onClick={() => setIsProfileOpen(false)}
-                      className="px-3 py-2 text-gray-700 font-indie-flower text-sm hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-left w-full"
+                      className="px-3 py-2 text-gray-700 font-glacial-indifference text-sm hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-left w-full"
                     >
                       Se déconnecter
                     </button>
