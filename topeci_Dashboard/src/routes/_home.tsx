@@ -97,7 +97,7 @@ function RouteComponent() {
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#108187]">
+              <BreadcrumbPage className="text-black">
                 {currentTitle}
               </BreadcrumbPage>
             </BreadcrumbItem>

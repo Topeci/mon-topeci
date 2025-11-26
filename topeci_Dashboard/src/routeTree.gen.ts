@@ -13,7 +13,6 @@ import { Route as HomeRouteImport } from './routes/_home'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeSettingRouteImport } from './routes/_home/setting'
 import { Route as HomeUsersRouteImport } from './routes/_home/Users'
-import { Route as HomeSettingsRouteImport } from './routes/_home/Settings'
 import { Route as HomeProductsRouteImport } from './routes/_home/Products'
 import { Route as HomePaymentsRouteImport } from './routes/_home/Payments'
 import { Route as HomeOrdersRouteImport } from './routes/_home/Orders'
@@ -38,11 +37,6 @@ const HomeSettingRoute = HomeSettingRouteImport.update({
 const HomeUsersRoute = HomeUsersRouteImport.update({
   id: '/Users',
   path: '/Users',
-  getParentRoute: () => HomeRoute,
-} as any)
-const HomeSettingsRoute = HomeSettingsRouteImport.update({
-  id: '/Settings',
-  path: '/Settings',
   getParentRoute: () => HomeRoute,
 } as any)
 const HomeProductsRoute = HomeProductsRouteImport.update({
@@ -84,7 +78,6 @@ export interface FileRoutesByFullPath {
   '/Orders': typeof HomeOrdersRoute
   '/Payments': typeof HomePaymentsRoute
   '/Products': typeof HomeProductsRoute
-  '/Settings': typeof HomeSettingsRoute
   '/Users': typeof HomeUsersRoute
   '/setting': typeof HomeSettingRoute
 }
@@ -96,7 +89,6 @@ export interface FileRoutesByTo {
   '/Orders': typeof HomeOrdersRoute
   '/Payments': typeof HomePaymentsRoute
   '/Products': typeof HomeProductsRoute
-  '/Settings': typeof HomeSettingsRoute
   '/Users': typeof HomeUsersRoute
   '/setting': typeof HomeSettingRoute
 }
@@ -110,7 +102,6 @@ export interface FileRoutesById {
   '/_home/Orders': typeof HomeOrdersRoute
   '/_home/Payments': typeof HomePaymentsRoute
   '/_home/Products': typeof HomeProductsRoute
-  '/_home/Settings': typeof HomeSettingsRoute
   '/_home/Users': typeof HomeUsersRoute
   '/_home/setting': typeof HomeSettingRoute
 }
@@ -124,7 +115,6 @@ export interface FileRouteTypes {
     | '/Orders'
     | '/Payments'
     | '/Products'
-    | '/Settings'
     | '/Users'
     | '/setting'
   fileRoutesByTo: FileRoutesByTo
@@ -136,7 +126,6 @@ export interface FileRouteTypes {
     | '/Orders'
     | '/Payments'
     | '/Products'
-    | '/Settings'
     | '/Users'
     | '/setting'
   id:
@@ -149,7 +138,6 @@ export interface FileRouteTypes {
     | '/_home/Orders'
     | '/_home/Payments'
     | '/_home/Products'
-    | '/_home/Settings'
     | '/_home/Users'
     | '/_home/setting'
   fileRoutesById: FileRoutesById
@@ -187,13 +175,6 @@ declare module '@tanstack/react-router' {
       path: '/Users'
       fullPath: '/Users'
       preLoaderRoute: typeof HomeUsersRouteImport
-      parentRoute: typeof HomeRoute
-    }
-    '/_home/Settings': {
-      id: '/_home/Settings'
-      path: '/Settings'
-      fullPath: '/Settings'
-      preLoaderRoute: typeof HomeSettingsRouteImport
       parentRoute: typeof HomeRoute
     }
     '/_home/Products': {
@@ -248,7 +229,6 @@ interface HomeRouteChildren {
   HomeOrdersRoute: typeof HomeOrdersRoute
   HomePaymentsRoute: typeof HomePaymentsRoute
   HomeProductsRoute: typeof HomeProductsRoute
-  HomeSettingsRoute: typeof HomeSettingsRoute
   HomeUsersRoute: typeof HomeUsersRoute
   HomeSettingRoute: typeof HomeSettingRoute
 }
@@ -260,7 +240,6 @@ const HomeRouteChildren: HomeRouteChildren = {
   HomeOrdersRoute: HomeOrdersRoute,
   HomePaymentsRoute: HomePaymentsRoute,
   HomeProductsRoute: HomeProductsRoute,
-  HomeSettingsRoute: HomeSettingsRoute,
   HomeUsersRoute: HomeUsersRoute,
   HomeSettingRoute: HomeSettingRoute,
 }

@@ -28,14 +28,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Users,
   ShoppingCart,
-  DollarSign,
   Eye,
   Package,
-  AlertTriangle,
-  ArrowUp,
-  ArrowDown,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_home/Dashboard")({
@@ -43,28 +38,6 @@ export const Route = createFileRoute("/_home/Dashboard")({
 });
 
 function RouteComponent() {
-  // Données simulées - À remplacer par vos appels API
-  const statsData = {
-    orders: {
-      today: 24,
-      week: 156,
-      month: 642,
-      trend: 12, // pourcentage
-    },
-    revenue: {
-      today: 2840,
-      week: 18500,
-      month: 75200,
-      trend: 8, // pourcentage
-    },
-    visitors: {
-      today: 1240,
-      week: 8450,
-      month: 34200,
-      trend: -5, // pourcentage
-    },
-    outOfStock: 12,
-  };
 
   const recentOrders = [
     {
@@ -118,57 +91,17 @@ function RouteComponent() {
       id: "#PAY-003",
       customer: "Pierre Lambert",
       amount: 234.0,
-      method: "Virement",
+      method: "À la livraison",
       status: "En attente",
       date: "2024-01-14",
     },
   ];
 
-  const recentCustomers = [
-    {
-      id: 1,
-      name: "Jean Dupont",
-      email: "jean@email.com",
-      joinDate: "2024-01-15",
-      orders: 3,
-    },
-    {
-      id: 2,
-      name: "Marie Martin",
-      email: "marie@email.com",
-      joinDate: "2024-01-15",
-      orders: 1,
-    },
-    {
-      id: 3,
-      name: "Pierre Lambert",
-      email: "pierre@email.com",
-      joinDate: "2024-01-14",
-      orders: 7,
-    },
-  ];
 
-  const stockAlerts = [
-    { product: "Smartphone X", stock: 2, minStock: 5 },
-    { product: "Casque Audio Pro", stock: 3, minStock: 10 },
-    { product: "Souris Gaming", stock: 1, minStock: 8 },
-  ];
 
-  const TrendIndicator = ({ value }: { value: number }) => {
-    const isPositive = value >= 0;
-    return (
-      <div
-        className={`flex items-center text-sm ${isPositive ? "text-green-600" : "text-red-600"}`}
-      >
-        {isPositive ? (
-          <ArrowUp className="h-4 w-4" />
-        ) : (
-          <ArrowDown className="h-4 w-4" />
-        )}
-        <span>{Math.abs(value)}%</span>
-      </div>
-    );
-  };
+ 
+
+  
 
   const StatusBadge = ({ status }: { status: string }) => {
     const getVariant = (status: string) => {
@@ -192,81 +125,35 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Grille des statistiques principales */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Commandes Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className=" from-green-50 to-green-100">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 ">
             <CardTitle className="text-sm font-medium">Commandes</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statsData.orders.today}</div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">Aujourd'hui</p>
-              <TrendIndicator value={statsData.orders.trend} />
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-              <span className="text-muted-foreground">Semaine:</span>
-              <span className="font-medium">{statsData.orders.week}</span>
-              <span className="text-muted-foreground">Mois:</span>
-              <span className="font-medium">{statsData.orders.month}</span>
-            </div>
+          <CardContent className="flex-1 pb-0">
+            <p className="text-center text-xl font-bold">
+              {recentOrders.length ?? 0}
+            </p>
+            <p className="text-center text-muted-foreground ">
+              Commandes enregistrés
+            </p>
           </CardContent>
         </Card>
 
-        {/* Chiffre d'affaires Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Chiffre d'affaires
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.revenue.today.toLocaleString()} €
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">Aujourd'hui</p>
-              <TrendIndicator value={statsData.revenue.trend} />
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-              <span className="text-muted-foreground">Semaine:</span>
-              <span className="font-medium">
-                {statsData.revenue.week.toLocaleString()} €
-              </span>
-              <span className="text-muted-foreground">Mois:</span>
-              <span className="font-medium">
-                {statsData.revenue.month.toLocaleString()} €
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Visiteurs Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Visiteurs</CardTitle>
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.visitors.today.toLocaleString()}
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">Aujourd'hui</p>
-              <TrendIndicator value={statsData.visitors.trend} />
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-              <span className="text-muted-foreground">Semaine:</span>
-              <span className="font-medium">
-                {statsData.visitors.week.toLocaleString()}
-              </span>
-              <span className="text-muted-foreground">Mois:</span>
-              <span className="font-medium">
-                {statsData.visitors.month.toLocaleString()}
-              </span>
-            </div>
+          <CardContent className="flex-1 pb-0">
+            <p className="text-center text-xl font-bold ">
+              {recentOrders.length ?? 0}
+            </p>
+            <p className="text-center text-muted-foreground ">
+              Visiteurs enregistrés
+            </p>
           </CardContent>
         </Card>
 
@@ -274,15 +161,17 @@ function RouteComponent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Rupture de stock
+              Stock actuel
             </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {statsData.outOfStock}
-            </div>
-            <p className="text-xs text-muted-foreground">Produits en rupture</p>
+          <CardContent className="flex-1 pb-0">
+            <p className="text-center text-xl font-bold">
+              {recentOrders.length ?? 0}
+            </p>
+            <p className="text-center text-muted-foreground mb-5">
+              Stock actuel
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -312,38 +201,10 @@ function RouteComponent() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium">
-                      {order.amount} €
+                      {order.amount} FCFA
                     </span>
                     <StatusBadge status={order.status} />
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Alertes stocks */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              Alertes Stocks
-            </CardTitle>
-            <CardDescription>Produits avec stock faible</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stockAlerts.map((alert, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{alert.product}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Stock: {alert.stock} (min: {alert.minStock})
-                    </p>
-                  </div>
-                  <Badge variant="destructive" className="whitespace-nowrap">
-                    Stock bas
-                  </Badge>
                 </div>
               ))}
             </div>
@@ -374,43 +235,9 @@ function RouteComponent() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium">
-                      {payment.amount} €
+                      {payment.amount} FCFA
                     </span>
                     <StatusBadge status={payment.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Derniers clients */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Derniers clients</CardTitle>
-            <CardDescription>Nouveaux clients inscrits</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentCustomers.map((customer) => (
-                <div
-                  key={customer.id}
-                  className="flex items-center justify-between border-b pb-3"
-                >
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {customer.email}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {customer.orders} commande(s)
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
-                      Inscrit le{" "}
-                      {new Date(customer.joinDate).toLocaleDateString()}
-                    </p>
                   </div>
                 </div>
               ))}
