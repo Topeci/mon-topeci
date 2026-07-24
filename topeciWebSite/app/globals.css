@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap");
+
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Glacial Indifference";
+  src: url("/fonts/GlacialIndifference-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Glacial Indifference";
+  src: url("/fonts/GlacialIndifference-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --turquoise: #79c8c7;
+  --yellow: #f2c94c;
+  --pink: #d93b7b;
+  --orange: #d98b5f;
+  --blue: #5c7db8;
+  --black-soft: #1e1e1e;
+  --cream: #fff9f1;
+
+  --background: #ffffff;
+  --foreground: var(--black-soft);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: "Glacial Indifference", Arial, Helvetica, sans-serif;
+  --font-title: "Montserrat", Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #ffffff;
+}
+
+body {
+  background: #ffffff;
+  color: var(--foreground);
+  font-family: "Glacial Indifference", Arial, Helvetica, sans-serif;
+}
+
+.font-title {
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+}
+
+@keyframes testimonialsMove {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-testimonials {
+  animation: testimonialsMove 38s ease-in-out infinite;
+}
