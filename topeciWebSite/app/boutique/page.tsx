@@ -17,6 +17,8 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import MarketSwitcher from "../components/MarketSwitcher";
+import Price from "../components/Price";
 
 type Product = {
   id: string;
@@ -373,6 +375,11 @@ export default function BoutiquePage() {
               </div>
             </div>
 
+            <MarketSwitcher
+              variant="full"
+              className="mb-6 max-w-xl rounded-2xl bg-white p-4 shadow-sm"
+            />
+
             <p className="mb-5 text-sm font-semibold text-slate-500 sm:mb-6">
               {filteredProducts.length} produit(s) affiché(s)
             </p>
@@ -416,7 +423,7 @@ export default function BoutiquePage() {
                       </p>
 
                       <p className="mt-4 text-lg font-bold text-[#5C7DB8] sm:text-xl">
-                        {product.price.toLocaleString("fr-FR")} CFA
+                        <Price productId={product.id} />
                       </p>
 
                       <div className="mt-auto flex flex-col gap-2 pt-5 min-[380px]:flex-row">
@@ -444,10 +451,17 @@ export default function BoutiquePage() {
             </div>
 
             <div className="mt-8 rounded-2xl bg-white p-4 text-sm leading-6 text-slate-600 shadow-sm sm:mt-10 sm:p-6 sm:leading-7">
-              <strong className="text-[#D93B7B]">NOTE :</strong> Les frais de
-              livraison sont en sus. Ils varient selon la destination et seront
-              communiqués lors de la confirmation de votre commande et de
-              l’organisation de la livraison.
+              <strong className="text-[#D93B7B]">LIVRAISON :</strong> les
+              frais s’ajoutent au prix des articles et sont calculés
+              automatiquement dans votre panier selon votre destination
+              (Abidjan par commune, intérieur du pays, France ou
+              international).{" "}
+              <Link
+                href="/politique-livraison"
+                className="font-semibold text-[#D93B7B] underline"
+              >
+                Voir les tarifs
+              </Link>
             </div>
           </div>
         </section>

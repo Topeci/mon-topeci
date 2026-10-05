@@ -57,7 +57,10 @@ export default function CGVPage() {
                   3. Prix
                 </h2>
                 <p className="mt-4">
-                  Les prix sont indiqués en FCFA, sauf mention contraire. TOPECI
+                  Les prix sont indiqués en FCFA pour les commandes livrées en
+                  Côte d’Ivoire, et en euros (€) pour les commandes livrées en
+                  France et à l’international. Les frais de livraison
+                  s’ajoutent au prix des articles. TOPECI
                   se réserve le droit de modifier ses prix à tout moment. Le prix
                   applicable est celui communiqué ou confirmé au moment de la
                   commande.

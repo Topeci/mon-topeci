@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Header from "./components/Header";
+import Price from "./components/Price";
 import Footer from "./components/Footer";
 import {
   ChevronLeft,
@@ -321,7 +322,7 @@ export default function Home() {
                     </p>
 
                     <p className="mt-3 text-lg font-bold sm:mt-4 sm:text-xl lg:text-2xl">
-                      {product.price}
+                      <Price productId={product.id} />
                     </p>
 
                     <div className="mt-auto grid gap-3 pt-5 sm:pt-6">

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, CircleUserRound, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import MarketSwitcher from "./MarketSwitcher";
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -80,6 +81,8 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-6 text-[#dfcf2c] md:flex">
+          <MarketSwitcher variant="compact" />
+
           <Link href="/mon-panier" aria-label="Mon panier" className="relative">
             <ShoppingCart size={29} strokeWidth={2.5} />
 
@@ -122,6 +125,8 @@ export default function Header() {
               </Link>
             ))}
           </nav>
+
+          <MarketSwitcher variant="full" className="mt-5" />
 
           <div className="mt-5 flex items-center gap-4 text-[#dfcf2c]">
             <Link

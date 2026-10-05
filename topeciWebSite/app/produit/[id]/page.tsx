@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Price from "../../components/Price";
 
 type Product = {
   id: string;
@@ -379,7 +380,7 @@ export default function ProductDetailPage() {
                 </p>
 
                 <p className="mt-6 text-2xl font-bold text-[#D98B5F] sm:text-3xl">
-                  {product.price.toLocaleString("fr-FR")} CFA
+                  <Price productId={product.id} />
                 </p>
 
                 <button
@@ -509,7 +510,7 @@ export default function ProductDetailPage() {
                     </h3>
 
                     <p className="mt-3 text-lg font-bold text-[#D98B5F]">
-                      {item.price.toLocaleString("fr-FR")} CFA
+                      <Price productId={item.id} />
                     </p>
 
                     <Link

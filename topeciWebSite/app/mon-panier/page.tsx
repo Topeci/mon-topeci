@@ -10,10 +10,29 @@ import {
   ChevronRight,
   Minus,
   Plus,
+  Info,
+  MapPin,
   ShoppingBag,
+  Truck,
   X,
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import MarketSwitcher from "../components/MarketSwitcher";
+import {
+  MARKETS,
+  formatPrice,
+  getProductPrice,
+  useMarket,
+} from "../lib/market";
+import {
+  ABIDJAN_ZONES,
+  FRANCE_PRICE_PER_PARCEL,
+  INTERIEUR_PRICE_PER_ITEM,
+  INTERNATIONAL_PRICE_FROM,
+  SHIPPING_METHODS,
+  type ShippingMethod,
+  getShippingQuote,
+} from "../lib/shipping";
 
 type CartProduct = {
   id: string;
@@ -53,10 +72,6 @@ const productImages: Record<string, string[]> = {
     "/images/carte-audio3.jpg",
     "/images/carte-audio4.jpg",
   ],
-};
-
-const parsePrice = (price: string) => {
-  return Number(price.replace(/\D/g, "")) || 0;
 };
 
 type CartProductGalleryProps = {
@@ -169,6 +184,17 @@ export default function MonPanierPage() {
   const [orderReceived, setOrderReceived] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [market] = useMarket();
+  const [selectedMethod, setShippingMethod] = useState<ShippingMethod | null>(
+    null,
+  );
+  // Si le client change de pays, un mode de livraison de l'autre pays ne compte plus
+  const shippingMethod = SHIPPING_METHODS[market].some(
+    (method) => method.id === selectedMethod,
+  )
+    ? selectedMethod
+    : null;
+  const [zone, setZone] = useState<string | null>(null);
 
   const [customerInfos, setCustomerInfos] = useState<CustomerInfos>({
     nom: "",
@@ -199,9 +225,37 @@ export default function MonPanierPage() {
 
   const total = useMemo(() => {
     return cart.reduce((sum, item) => {
-      return sum + parsePrice(item.price) * item.quantity;
+      return sum + getProductPrice(item.id, market) * item.quantity;
     }, 0);
-  }, [cart]);
+  }, [cart, market]);
+
+  const itemCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart],
+  );
+
+  const shippingQuote = getShippingQuote(shippingMethod, zone, itemCount);
+  const shippingReady = shippingQuote.amount !== null;
+  const grandTotal = total + (shippingQuote.amount ?? 0);
+  const price = (amount: number) => formatPrice(amount, market);
+
+  const chooseMethod = (method: ShippingMethod) => {
+    setShippingMethod(method);
+    if (method !== "abidjan") setZone(null);
+
+    // Pré-remplit le pays (et la ville pour Abidjan) si le client ne l'a pas fait
+    setCustomerInfos((previous) => ({
+      ...previous,
+      pays:
+        previous.pays ||
+        (method === "abidjan" || method === "interieur"
+          ? "Côte d’Ivoire"
+          : method === "france"
+            ? "France"
+            : ""),
+      ville: previous.ville || (method === "abidjan" ? "Abidjan" : ""),
+    }));
+  };
 
   const updateQuantity = (id: string, quantity: number) => {
     const updatedCart = cart.map((item) =>
@@ -226,14 +280,14 @@ export default function MonPanierPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (cart.length === 0 || !acceptedTerms) return;
+    if (cart.length === 0 || !acceptedTerms || !shippingReady) return;
 
     setIsSubmitting(true);
 
     const produitsCommande = cart
       .map(
         (item) =>
-          `${item.title} | Prix : ${item.price} | Quantité : ${item.quantity}`
+          `${item.title} | Prix : ${price(getProductPrice(item.id, market))} | Quantité : ${item.quantity}`
       )
       .join("\n");
 
@@ -250,14 +304,22 @@ export default function MonPanierPage() {
     formData.append("Adresse", customerInfos.adresse);
     formData.append("Ville", customerInfos.ville);
     formData.append("Pays", customerInfos.pays);
-    formData.append("Produits commandés", produitsCommande);
-    formData.append("Total produits", `${total.toLocaleString("fr-FR")} CFA`);
-    formData.append("CGV acceptées", acceptedTerms ? "Oui" : "Non");
-
     formData.append(
-      "Note livraison",
-      "Les frais de livraison sont en sus. Ils varient selon la destination et seront communiqués lors de la confirmation de votre commande et de l’organisation de la livraison."
+      "Marché / devise",
+      `${MARKETS[market].label} (${MARKETS[market].currency})`,
     );
+    formData.append("Produits commandés", produitsCommande);
+    formData.append("Total produits", price(total));
+    formData.append("Mode de livraison", shippingQuote.detail);
+    formData.append(
+      "Frais de livraison",
+      `${shippingQuote.isMinimum ? "À partir de " : ""}${price(shippingQuote.amount ?? 0)}`,
+    );
+    formData.append(
+      "TOTAL À PAYER",
+      `${shippingQuote.isMinimum ? "À partir de " : ""}${price(grandTotal)}`,
+    );
+    formData.append("CGV acceptées", acceptedTerms ? "Oui" : "Non");
 
     try {
       const response = await fetch(
@@ -282,6 +344,8 @@ export default function MonPanierPage() {
 
       setCart([]);
       setAcceptedTerms(false);
+      setShippingMethod(null);
+      setZone(null);
 
       setCustomerInfos({
         nom: "",
@@ -321,8 +385,9 @@ export default function MonPanierPage() {
             </h1>
 
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
-              Préparez votre commande. Notre équipe vous contactera ensuite pour
-              confirmer les détails et vous communiquer les frais de livraison.
+              Préparez votre commande et choisissez votre livraison : le total
+              à payer est calculé automatiquement. Notre équipe vous contactera
+              ensuite sur WhatsApp pour confirmer la commande.
             </p>
 
             {cart.length === 0 ? (
@@ -361,8 +426,8 @@ export default function MonPanierPage() {
 
                     <div className="mt-6 space-y-5">
                       {cart.map((item) => {
-                        const itemTotal =
-                          parsePrice(item.price) * item.quantity;
+                        const unitPrice = getProductPrice(item.id, market);
+                        const itemTotal = unitPrice * item.quantity;
 
                         return (
                           <div
@@ -388,7 +453,7 @@ export default function MonPanierPage() {
                               </div>
 
                               <p className="mt-3 text-lg font-bold text-[#D98B5F]">
-                                {item.price}
+                                {price(unitPrice)}
                               </p>
 
                               <div className="mt-5 flex items-center gap-3">
@@ -422,7 +487,7 @@ export default function MonPanierPage() {
                               <p className="mt-4 text-sm font-semibold text-slate-600">
                                 Sous-total :{" "}
                                 <span className="text-[#D98B5F]">
-                                  {itemTotal.toLocaleString("fr-FR")} CFA
+                                  {price(itemTotal)}
                                 </span>
                               </p>
                             </div>
@@ -433,19 +498,196 @@ export default function MonPanierPage() {
                   </div>
 
                   <div className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-                    <h2 className="font-title text-2xl font-bold text-[#5C7DB8]">
-                      Note sur la livraison
+                    <h2 className="flex items-center gap-2 font-title text-2xl font-bold text-[#5C7DB8]">
+                      <Truck size={24} className="text-[#D98B5F]" />
+                      Livraison
                     </h2>
 
-                    <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base sm:leading-8">
-                      Les frais de livraison sont en sus. Ils varient selon la
-                      destination et seront communiqués lors de la confirmation
-                      de votre commande et de l’organisation de la livraison.
+                    <MarketSwitcher variant="full" className="mt-5" />
+
+                    <p className="mt-6 text-sm font-bold uppercase tracking-[0.12em] text-slate-700">
+                      1. Choisissez votre mode de livraison
                     </p>
 
-                    <div className="mt-6 flex flex-col gap-2 border-t border-slate-200 pt-5 text-lg font-bold text-[#D98B5F] sm:flex-row sm:items-center sm:justify-between sm:text-xl">
-                      <span>Total produits</span>
-                      <span>{total.toLocaleString("fr-FR")} CFA</span>
+                    <div
+                      role="radiogroup"
+                      aria-label="Mode de livraison"
+                      className="mt-3 grid gap-3"
+                    >
+                      {SHIPPING_METHODS[market].map((method) => {
+                        const selected = shippingMethod === method.id;
+                        const methodPrice =
+                          method.id === "abidjan"
+                            ? `dès ${price(Math.min(...ABIDJAN_ZONES.map((z) => z.price)))}`
+                            : method.id === "interieur"
+                              ? `${price(INTERIEUR_PRICE_PER_ITEM)} / article`
+                              : method.id === "france"
+                                ? `${price(FRANCE_PRICE_PER_PARCEL)} / colis`
+                                : `dès ${price(INTERNATIONAL_PRICE_FROM)}`;
+
+                        return (
+                          <button
+                            key={method.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={selected}
+                            onClick={() => chooseMethod(method.id)}
+                            className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition ${
+                              selected
+                                ? "border-[#79C8C7] bg-[#79C8C7]/10"
+                                : "border-slate-200 hover:border-[#79C8C7]/50"
+                            }`}
+                          >
+                            <span
+                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                                selected
+                                  ? "border-[#79C8C7]"
+                                  : "border-slate-300"
+                              }`}
+                            >
+                              {selected && (
+                                <span className="h-2.5 w-2.5 rounded-full bg-[#79C8C7]" />
+                              )}
+                            </span>
+
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-bold text-[#1E1E1E]">
+                                {method.title}
+                              </span>
+                              <span className="mt-0.5 block text-sm leading-5 text-slate-500">
+                                {method.description}
+                              </span>
+                            </span>
+
+                            <span className="shrink-0 text-right text-sm font-bold text-[#D98B5F]">
+                              {methodPrice}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {shippingMethod === "abidjan" && (
+                      <>
+                        <p className="mt-6 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-700">
+                          <MapPin size={16} />
+                          2. Choisissez votre commune
+                        </p>
+
+                        <div
+                          role="radiogroup"
+                          aria-label="Commune de livraison"
+                          className="mt-3 grid gap-2 sm:grid-cols-2"
+                        >
+                          {ABIDJAN_ZONES.map((item) => {
+                            const selected = zone === item.name;
+
+                            return (
+                              <button
+                                key={item.name}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => setZone(item.name)}
+                                className={`flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
+                                  selected
+                                    ? "border-[#79C8C7] bg-[#79C8C7]/10"
+                                    : "border-slate-200 hover:border-[#79C8C7]/50"
+                                }`}
+                              >
+                                <span className="font-semibold text-[#1E1E1E]">
+                                  {item.name}
+                                </span>
+                                <span className="shrink-0 text-sm font-bold text-[#D98B5F]">
+                                  {price(item.price)}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <p className="mt-3 text-xs leading-5 text-slate-500 sm:text-sm">
+                          Votre commune n’est pas dans la liste ? Choisissez
+                          la plus proche et précisez votre quartier dans
+                          l’adresse : nous confirmerons le tarif sur WhatsApp.
+                        </p>
+                      </>
+                    )}
+
+                    {shippingMethod === "interieur" && (
+                      <p className="mt-4 rounded-2xl bg-[#FFF9F1] p-4 text-sm leading-6 text-slate-600">
+                        Tarif de {price(INTERIEUR_PRICE_PER_ITEM)} par article ×{" "}
+                        {itemCount} article(s). Indiquez votre ville et la gare
+                        ou la compagnie de car souhaitée dans l’adresse de
+                        livraison. Le code de retrait vous sera envoyé sur
+                        WhatsApp.
+                      </p>
+                    )}
+
+                    {shippingMethod === "france" && (
+                      <p className="mt-4 rounded-2xl bg-[#FFF9F1] p-4 text-sm leading-6 text-slate-600">
+                        Envoi en colis La Poste partout en France
+                        métropolitaine : forfait unique de{" "}
+                        {price(FRANCE_PRICE_PER_PARCEL)} par commande, quel que
+                        soit le nombre d’articles.
+                      </p>
+                    )}
+
+                    {shippingMethod === "international" && (
+                      <p className="mt-4 rounded-2xl bg-[#FFF9F1] p-4 text-sm leading-6 text-slate-600">
+                        Les frais d’envoi hors de France démarrent à{" "}
+                        {price(INTERNATIONAL_PRICE_FROM)} et dépendent du pays.
+                        Le montant exact vous sera confirmé sur WhatsApp avant
+                        l’envoi.
+                      </p>
+                    )}
+
+                    <div className="mt-6 rounded-2xl border border-[#F2C94C]/60 bg-[#FFFBEF] p-4 text-sm leading-6 text-slate-700">
+                      <p className="flex items-center gap-2 font-bold text-[#B8860B]">
+                        <Info size={16} />
+                        Bon à savoir
+                      </p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5">
+                        <li>
+                          Vérifiez bien votre mode de livraison et votre
+                          adresse avant de valider.
+                        </li>
+                        <li>
+                          Le paiement se fait après confirmation de la commande
+                          par notre équipe.
+                        </li>
+                        <li>
+                          La confirmation et les informations de suivi vous
+                          sont envoyées sur WhatsApp.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-6 space-y-2 border-t border-slate-200 pt-5 text-sm text-slate-600 sm:text-base">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>Articles ({itemCount})</span>
+                        <span className="font-semibold text-[#1E1E1E]">
+                          {price(total)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3">
+                        <span>Livraison</span>
+                        <span className="text-right font-semibold text-[#1E1E1E]">
+                          {shippingReady
+                            ? `${shippingQuote.isMinimum ? "dès " : ""}${price(shippingQuote.amount ?? 0)}`
+                            : "À choisir"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 pt-2 text-lg font-bold text-[#D98B5F] sm:text-xl">
+                        <span>
+                          {shippingQuote.isMinimum
+                            ? "Total (à partir de)"
+                            : "Total à payer"}
+                        </span>
+                        <span>{price(grandTotal)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -598,13 +840,21 @@ export default function MonPanierPage() {
 
                     <button
                       type="submit"
-                      disabled={isSubmitting || !acceptedTerms}
+                      disabled={isSubmitting || !acceptedTerms || !shippingReady}
                       className="mt-2 w-full rounded-xl bg-[#79C8C7] px-7 py-4 text-sm font-bold text-white transition hover:bg-[#66b8b7] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                     >
                       {isSubmitting
                         ? "Envoi de la commande..."
-                        : "Valider la commande"}
+                        : shippingReady
+                          ? `Valider la commande · ${price(grandTotal)}`
+                          : "Valider la commande"}
                     </button>
+
+                    {!shippingReady && (
+                      <p className="text-center text-sm font-semibold text-[#D93B7B]">
+                        {shippingQuote.detail} pour valider la commande.
+                      </p>
+                    )}
 
                     <p className="text-center text-xs leading-6 text-slate-500 sm:text-sm">
                       La commande sera envoyée automatiquement à :
@@ -633,9 +883,9 @@ export default function MonPanierPage() {
               <br />
               Elle a bien été enregistrée.
               <br />
-              Notre équipe vous contactera prochainement afin de confirmer les
-              détails de livraison et vous communiquer les frais de livraison
-              associés.
+              Notre équipe vous contactera prochainement sur WhatsApp afin de
+              confirmer votre commande et les modalités de paiement et de
+              livraison.
             </p>
 
             <Link

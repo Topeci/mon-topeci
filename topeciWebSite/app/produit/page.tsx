@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Price from "../components/Price";
 import { Check, MessageCircle, ShoppingCart, Truck } from "lucide-react";
 
 const products = [
@@ -160,7 +161,7 @@ export default function ProduitPage({ searchParams }: ProduitPageProps) {
                 </p>
 
                 <p className="mt-5 text-3xl font-bold text-[#D98B5F]">
-                  {selectedProduct.price}
+                  <Price productId={selectedProduct.slug} />
                 </p>
 
                 <p className="mt-6 text-lg leading-8 text-slate-700">
@@ -202,7 +203,7 @@ export default function ProduitPage({ searchParams }: ProduitPageProps) {
                         </div>
 
                         <p className="font-bold text-[#D98B5F]">
-                          {product.price}
+                          <Price productId={product.slug} />
                         </p>
                       </Link>
                     ))}

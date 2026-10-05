@@ -1,6 +1,14 @@
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import {
+  ABIDJAN_ZONES,
+  FRANCE_PRICE_PER_PARCEL,
+  INTERIEUR_PRICE_PER_ITEM,
+  INTERNATIONAL_PRICE_FROM,
+} from "../lib/shipping";
+
+const fcfa = (amount: number) => `${amount.toLocaleString("fr-FR")} FCFA`;
 
 export default function PolitiqueLivraisonPage() {
   return (
@@ -65,10 +73,67 @@ export default function PolitiqueLivraisonPage() {
                   4. Frais de livraison
                 </h2>
                 <p className="mt-4">
-                  Les frais de livraison dépendent de la destination, du poids,
-                  du volume du colis et du mode d’expédition choisi. Ils peuvent
-                  être communiqués avant la validation définitive de la commande.
+                  Les frais de livraison s’ajoutent au prix des articles. Ils
+                  sont calculés automatiquement dans votre panier dès que vous
+                  choisissez votre mode de livraison.
                 </p>
+
+                <h3 className="mt-6 font-title text-lg font-bold text-[#1E1E1E]">
+                  Côte d’Ivoire (prix en FCFA)
+                </h3>
+                <ul className="mt-2 list-disc pl-6">
+                  <li>
+                    <strong>Abidjan et environs :</strong> tarif par commande
+                    selon la commune (voir le tableau ci-dessous).
+                  </li>
+                  <li>
+                    <strong>Intérieur du pays :</strong>{" "}
+                    {fcfa(INTERIEUR_PRICE_PER_ITEM)} par article, envoi par car
+                    / gare.
+                  </li>
+                </ul>
+
+                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                  <table className="w-full text-left text-sm sm:text-base">
+                    <thead className="bg-[#FFF9F1] text-[#5C7DB8]">
+                      <tr>
+                        <th className="px-4 py-3 font-bold">Commune</th>
+                        <th className="px-4 py-3 text-right font-bold">
+                          Livraison
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ABIDJAN_ZONES.map((zone) => (
+                        <tr
+                          key={zone.name}
+                          className="border-t border-slate-100"
+                        >
+                          <td className="px-4 py-2">{zone.name}</td>
+                          <td className="px-4 py-2 text-right font-semibold text-[#D98B5F]">
+                            {fcfa(zone.price)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <h3 className="mt-6 font-title text-lg font-bold text-[#1E1E1E]">
+                  France et international (prix en euros)
+                </h3>
+                <ul className="mt-2 list-disc pl-6">
+                  <li>
+                    <strong>France métropolitaine :</strong>{" "}
+                    {FRANCE_PRICE_PER_PARCEL} € par colis via La Poste, quel
+                    que soit le nombre d’articles.
+                  </li>
+                  <li>
+                    <strong>Autres pays :</strong> à partir de{" "}
+                    {INTERNATIONAL_PRICE_FROM} €, montant exact confirmé sur
+                    WhatsApp avant l’envoi.
+                  </li>
+                </ul>
               </section>
 
               <section>
