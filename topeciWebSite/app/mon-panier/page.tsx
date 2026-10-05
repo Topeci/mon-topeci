@@ -387,7 +387,7 @@ export default function MonPanierPage() {
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
               Préparez votre commande et choisissez votre livraison : le total
               à payer est calculé automatiquement. Notre équipe vous contactera
-              ensuite sur WhatsApp pour confirmer la commande.
+              ensuite pour confirmer la commande.
             </p>
 
             {cart.length === 0 ? (
@@ -619,8 +619,8 @@ export default function MonPanierPage() {
                         Tarif de {price(INTERIEUR_PRICE_PER_ITEM)} par article ×{" "}
                         {itemCount} article(s). Indiquez votre ville et la gare
                         ou la compagnie de car souhaitée dans l’adresse de
-                        livraison. Le code de retrait vous sera envoyé sur
-                        WhatsApp.
+                        livraison. Notre équipe vous appellera pour organiser
+                        l’envoi.
                       </p>
                     )}
 
@@ -659,8 +659,8 @@ export default function MonPanierPage() {
                               en recevant votre colis.
                             </li>
                             <li>
-                              La confirmation et les informations de suivi vous
-                              sont envoyées sur WhatsApp.
+                              Vous recevrez un appel de notre équipe pour
+                              organiser la livraison.
                             </li>
                           </>
                         ) : (
@@ -898,7 +898,7 @@ export default function MonPanierPage() {
               <br />
               Elle a bien été enregistrée.
               <br />
-              Notre équipe vous contactera prochainement sur WhatsApp afin de
+              Notre équipe vous contactera prochainement afin de
               confirmer votre commande et les modalités de paiement et de
               livraison.
             </p>
