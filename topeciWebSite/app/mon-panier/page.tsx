@@ -652,14 +652,29 @@ export default function MonPanierPage() {
                           Vérifiez bien votre mode de livraison et votre
                           adresse avant de valider.
                         </li>
-                        <li>
-                          Le paiement se fait après confirmation de la commande
-                          par notre équipe.
-                        </li>
-                        <li>
-                          La confirmation et les informations de suivi vous
-                          sont envoyées sur WhatsApp.
-                        </li>
+                        {market === "CI" ? (
+                          <>
+                            <li>
+                              Paiement à la livraison uniquement : vous payez
+                              en recevant votre colis.
+                            </li>
+                            <li>
+                              La confirmation et les informations de suivi vous
+                              sont envoyées sur WhatsApp.
+                            </li>
+                          </>
+                        ) : (
+                          <>
+                            <li>
+                              Votre commande est confirmée sur WhatsApp par
+                              notre équipe.
+                            </li>
+                            <li>
+                              Paiement par Wero ou PayPal, ou en espèces si vous
+                              venez récupérer votre commande en Île-de-France.
+                            </li>
+                          </>
+                        )}
                       </ul>
                     </div>
 
