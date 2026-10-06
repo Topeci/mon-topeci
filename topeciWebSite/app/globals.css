@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Fredoka:wght@600;700&family=Indie+Flower&display=swap");
 
 @import "tailwindcss";
 
@@ -71,4 +71,109 @@ body {
 
 .animate-testimonials {
   animation: testimonialsMove 38s ease-in-out infinite;
+}
+/* ---------- Écrans mascottes (panier vide, merci, 404) ---------- */
+@layer components {
+  .font-fun {
+    font-family: "Fredoka", "Montserrat", Arial, sans-serif;
+  }
+  
+  .font-hand {
+    font-family: "Indie Flower", cursive;
+  }
+  
+  .tp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 28px;
+    border-radius: 999px;
+    border: 3px solid #1f2533;
+    box-shadow: 0 5px 0 #1f2533;
+    font-family: "Fredoka", "Montserrat", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .tp-btn:hover {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #1f2533;
+  }
+  
+  .tp-bubble {
+    position: relative;
+    background: #fff;
+    border: 3px solid #1f2533;
+    border-radius: 22px;
+    padding: 10px 16px;
+    font-family: "Indie Flower", cursive;
+    font-size: 22px;
+    line-height: 1.15;
+    color: #1f2533;
+  }
+  
+  .tp-bubble::after {
+    content: "";
+    position: absolute;
+    top: 24px;
+    left: -11px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-left: 3px solid #1f2533;
+    border-bottom: 3px solid #1f2533;
+    transform: rotate(45deg);
+  }
+  
+  @keyframes tpSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes tpBob {
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  
+  @keyframes tpFall {
+    0% {
+      transform: translateY(-20px) rotate(0deg);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(260px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+  
+  .tp-spin {
+    animation: tpSpin 40s linear infinite;
+  }
+  
+  .tp-bob {
+    animation: tpBob 3s ease-in-out infinite;
+  }
+  
+  .tp-confetti {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    animation: tpFall 3.2s ease-in infinite;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .tp-spin,
+    .tp-bob,
+    .tp-confetti {
+      animation: none;
+    }
+  }
 }

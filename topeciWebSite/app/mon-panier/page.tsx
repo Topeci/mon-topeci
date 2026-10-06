@@ -42,6 +42,14 @@ type CartProduct = {
   quantity: number;
 };
 
+type OrderSummary = {
+  lines: { label: string; amount: string }[];
+  shipping: { label: string; amount: string };
+  total: string;
+  isMinimum: boolean;
+  market: "CI" | "EUR";
+};
+
 type CustomerInfos = {
   nom: string;
   prenom: string;
@@ -181,7 +189,10 @@ function CartProductGallery({ item }: CartProductGalleryProps) {
 
 export default function MonPanierPage() {
   const [cart, setCart] = useState<CartProduct[]>([]);
-  const [orderReceived, setOrderReceived] = useState(false);
+  const [cartLoaded, setCartLoaded] = useState(false);
+  const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [market] = useMarket();
@@ -221,6 +232,7 @@ export default function MonPanierPage() {
     } catch {
       setCart([]);
     }
+    setCartLoaded(true);
   }, []);
 
   const total = useMemo(() => {
@@ -337,7 +349,20 @@ export default function MonPanierPage() {
         throw new Error("Erreur lors de l’envoi de la commande.");
       }
 
-      setOrderReceived(true);
+      setOrderSummary({
+        lines: cart.map((item) => ({
+          label: `${item.quantity} × ${item.title}`,
+          amount: price(getProductPrice(item.id, market) * item.quantity),
+        })),
+        shipping: {
+          label: shippingQuote.detail,
+          amount: `${shippingQuote.isMinimum ? "dès " : ""}${price(shippingQuote.amount ?? 0)}`,
+        },
+        total: price(grandTotal),
+        isMinimum: shippingQuote.isMinimum,
+        market,
+      });
+      window.scrollTo({ top: 0 });
 
       localStorage.removeItem("topeci_cart_items");
       window.dispatchEvent(new Event("topeci-cart-updated"));
@@ -369,6 +394,135 @@ export default function MonPanierPage() {
     <>
       <Header />
 
+      {orderSummary ? (
+        <main className="relative overflow-hidden bg-[#74C6C6] pt-[88px] text-[#1F2533]">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[88px] h-[300px]">
+            <i className="tp-confetti left-[12%] top-6 bg-[#BE356A]" style={{ animationDelay: "0s" }} />
+            <i className="tp-confetti left-[26%] top-0 bg-[#DCCC41]" style={{ animationDelay: "0.8s" }} />
+            <i className="tp-confetti left-[44%] top-10 bg-white" style={{ animationDelay: "1.6s" }} />
+            <i className="tp-confetti left-[62%] top-2 bg-[#4E6FA7]" style={{ animationDelay: "0.4s" }} />
+            <i className="tp-confetti left-[78%] top-8 bg-[#D68E54]" style={{ animationDelay: "1.2s" }} />
+            <i className="tp-confetti left-[90%] top-0 bg-[#6A4C9C]" style={{ animationDelay: "2s" }} />
+          </div>
+
+          <section className="relative mx-auto flex max-w-xl flex-col items-center px-5 pb-16 pt-8 text-center sm:pt-12">
+            <Image
+              src="/images/mascottes/mascottes.png"
+              alt="Les deux enfants mascottes de TOPECI"
+              width={1000}
+              height={802}
+              priority
+              className="h-[240px] w-auto sm:h-[300px]"
+            />
+
+            <h1 className="font-fun mt-6 text-4xl font-bold sm:text-5xl">
+              Merci, c’est noté !
+            </h1>
+
+            <p className="mt-3 max-w-md text-base font-semibold leading-7 sm:text-lg">
+              {orderSummary.market === "CI"
+                ? "Ta commande est bien partie chez nous. Notre équipe t’appelle pour organiser la livraison."
+                : "Ta commande est bien partie chez nous. Notre équipe te confirme tout sur WhatsApp."}
+            </p>
+
+            <div className="mt-7 w-full rounded-3xl border-[3px] border-[#1F2533] bg-white p-5 text-left text-sm font-bold sm:text-base">
+              <div className="space-y-2">
+                {orderSummary.lines.map((line) => (
+                  <div key={line.label} className="flex justify-between gap-4">
+                    <span>{line.label}</span>
+                    <span className="shrink-0">{line.amount}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between gap-4">
+                  <span>{orderSummary.shipping.label}</span>
+                  <span className="shrink-0">{orderSummary.shipping.amount}</span>
+                </div>
+              </div>
+
+              <div className="font-fun mt-3 flex justify-between gap-4 border-t-2 border-dashed border-slate-300 pt-3 text-lg text-[#BE356A] sm:text-xl">
+                <span>
+                  {orderSummary.market === "CI"
+                    ? "À payer à la livraison"
+                    : orderSummary.isMinimum
+                      ? "Total (à partir de)"
+                      : "Total à payer"}
+                </span>
+                <span className="shrink-0">{orderSummary.total}</span>
+              </div>
+
+              {orderSummary.market === "EUR" && (
+                <p className="mt-3 text-xs font-semibold leading-5 text-slate-600 sm:text-sm">
+                  Paiement par Wero ou PayPal, ou en espèces si tu viens
+                  récupérer ta commande en Île-de-France.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link href="/" className="tp-btn bg-white text-[#1F2533]">
+                Retour à l’accueil
+              </Link>
+              <Link
+                href="/boutique"
+                onClick={() => setOrderSummary(null)}
+                className="tp-btn bg-[#BE356A] text-white"
+              >
+                Continuer mes achats
+              </Link>
+            </div>
+          </section>
+        </main>
+      ) : !cartLoaded ? (
+        <main className="min-h-[70vh] bg-white pt-[88px]" />
+      ) : cart.length === 0 ? (
+        <main className="bg-white pt-[88px] text-[#1F2533]">
+          <section className="mx-auto flex max-w-xl flex-col items-center px-5 pb-16 pt-10 text-center sm:pt-14">
+            <div className="relative flex h-[320px] w-full max-w-[380px] items-end justify-center sm:h-[360px]">
+              <Image
+                src="/images/mascottes/soleil.png"
+                alt=""
+                width={324}
+                height={399}
+                className="tp-spin absolute left-1/2 top-0 -ml-[110px] h-[270px] w-[220px] opacity-50"
+              />
+
+              <p className="tp-bubble tp-bob absolute right-0 top-2 z-20 text-[19px] sm:text-[22px]">
+                Il est tout vide !
+              </p>
+
+              <Image
+                src="/images/mascottes/garcon.png"
+                alt="Le petit garçon mascotte de TOPECI regarde le panier vide"
+                width={575}
+                height={720}
+                priority
+                className="relative z-10 mr-16 h-[280px] w-auto sm:h-[320px]"
+              />
+
+              <div className="absolute bottom-3 right-6 z-0 flex h-[104px] w-[116px] rotate-6 items-center justify-center rounded-3xl border-4 border-dashed border-[#74C6C6] bg-white text-[#74C6C6]">
+                <ShoppingBag size={50} />
+              </div>
+            </div>
+
+            <h1 className="font-fun mt-6 text-4xl font-bold sm:text-5xl">
+              Ton panier attend ses histoires
+            </h1>
+
+            <p className="mt-3 max-w-sm text-base font-semibold leading-7 text-slate-600 sm:text-lg">
+              Choisis une langue et ajoute ton premier livre audio. Tu pourras
+              écouter un extrait avant.
+            </p>
+
+            <Link href="/boutique" className="tp-btn mt-7 bg-[#BE356A] text-white">
+              Choisir une langue
+            </Link>
+
+            <p className="font-hand mt-10 text-2xl text-[#BE356A]">
+              Akwaba chez TOPECI !
+            </p>
+          </section>
+        </main>
+      ) : (
       <main className="bg-[#FFF9F1] pt-[88px] text-[#1E1E1E]">
         <section className="px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
           <div className="mx-auto max-w-7xl">
@@ -390,30 +544,7 @@ export default function MonPanierPage() {
               ensuite pour confirmer la commande.
             </p>
 
-            {cart.length === 0 ? (
-              <div className="mt-10 rounded-3xl bg-white p-6 text-center shadow-sm sm:p-8">
-                <ShoppingBag
-                  className="mx-auto text-[#D98B5F]"
-                  size={50}
-                />
-
-                <h2 className="mt-5 font-title text-2xl font-bold text-[#5C7DB8]">
-                  Votre panier est vide
-                </h2>
-
-                <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-                  Sélectionnez un produit depuis la boutique pour préparer votre
-                  commande.
-                </p>
-
-                <Link
-                  href="/boutique"
-                  className="mt-7 inline-block rounded-xl bg-[#79C8C7] px-7 py-3.5 text-sm font-semibold text-white sm:px-8 sm:py-4 sm:text-base"
-                >
-                  Aller à la boutique
-                </Link>
-              </div>
-            ) : (
+            {cart.length > 0 && (
               <form
                 onSubmit={handleSubmit}
                 className="mt-10 grid gap-8 xl:grid-cols-[1.15fr_0.85fr]"
@@ -885,33 +1016,6 @@ export default function MonPanierPage() {
           </div>
         </section>
       </main>
-
-      {orderReceived && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 py-5 sm:px-6">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 text-center shadow-xl sm:p-8">
-            <h2 className="font-title text-2xl font-bold text-[#D93B7B] sm:text-3xl">
-              COMMANDE REÇUE ❤️
-            </h2>
-
-            <p className="mt-5 text-sm leading-7 text-slate-600 sm:text-base sm:leading-8">
-              Merci pour votre commande.
-              <br />
-              Elle a bien été enregistrée.
-              <br />
-              Notre équipe vous contactera prochainement afin de
-              confirmer votre commande et les modalités de paiement et de
-              livraison.
-            </p>
-
-            <Link
-              href="/boutique"
-              onClick={() => setOrderReceived(false)}
-              className="mt-7 inline-block rounded-xl bg-[#79C8C7] px-7 py-3.5 text-sm font-bold text-white sm:px-8 sm:py-4 sm:text-base"
-            >
-              Retour à la boutique
-            </Link>
-          </div>
-        </div>
       )}
 
       <Footer />
