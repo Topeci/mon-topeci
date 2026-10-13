@@ -5,6 +5,15 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 
 const articles = [
   {
+    title:
+      "Un livre pour accompagner les premiers pas d’enfants africains dans leur langue maternelle",
+    category: "Radio",
+    source: "RFI – L’Afrique en marche",
+    description:
+      "Le podcast de RFI revient sur le livre audio TOPECI, qui aide les tout-petits à apprendre leur langue maternelle en jouant.",
+    url: "https://www.rfi.fr/fr/podcasts/l-afrique-en-marche/20251128-un-livre-pour-accompagner-les-premiers-pas-d-enfants-africains-dans-leur-langue-maternelle",
+  },
+  {
     title: "Vidéo TOPECI – Présentation officielle",
     category: "Vidéo",
     source: "YouTube",
