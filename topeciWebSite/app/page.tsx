@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "./components/Header";
 import Price from "./components/Price";
 import Footer from "./components/Footer";
+import TesteLeDino from "./components/TesteLeDino";
 import {
   ChevronLeft,
   ChevronRight,
@@ -382,6 +383,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <TesteLeDino />
 
         <section className="overflow-hidden px-4 py-10 min-[380px]:px-5 sm:px-6 sm:py-14 md:py-16 lg:px-8 lg:py-20 xl:py-24">
           <div className="mx-auto w-full max-w-7xl">

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import TesteLeDino from "../../components/TesteLeDino";
 import {
   ArrowLeft,
   Check,
@@ -395,6 +396,8 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </section>
+
+        {product.id === "cartes-audio-bete" && <TesteLeDino achat="haut" />}
 
         <section className="px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2 lg:gap-10">
