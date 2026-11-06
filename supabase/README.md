@@ -50,6 +50,16 @@ Le site retient d'où vient chaque visiteur pendant 60 jours :
 | `montopeci.com/?src=facebook` (instagram, tiktok…) | Lien en bio ou dans les publications |
 | `montopeci.com/?amb=AWA` | Lien personnel d'un ambassadeur : ses ventes lui sont attribuées |
 
+## Importer le fichier historique « Base de donnée TOPECI »
+
+```
+python3 supabase/import_historique.py Base_de_donnee_TOPECI.xlsx > import_historique.sql
+```
+
+Chaque ligne avec modèle et date devient une vente (statut « livree », prix non renseigné),
+les autres lignes deviennent des contacts. Les numéros mal formés sont corrigés ou signalés
+« à vérifier » dans les notes de la commande.
+
 ## Importer un fichier clients (Excel ou CSV)
 
 ```
