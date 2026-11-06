@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
-	"name": "montopeci",
+	"name": "mon-topeci",
 	"compatibility_date": "2026-11-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": {
@@ -12,7 +12,7 @@
 		{
 			// Référence à lui-même, le nom doit être celui du worker
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "montopeci"
+			"service": "mon-topeci"
 		}
 	],
 	"images": {
