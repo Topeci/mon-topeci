@@ -38,6 +38,16 @@
   --font-sans: "Glacial Indifference", Arial, Helvetica, sans-serif;
   --font-title: "Montserrat", Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  /* Charte TOPECI (espace admin) */
+  --color-tp-bleu: #4e6fa7;
+  --color-tp-jaune: #dccc41;
+  --color-tp-fuchsia: #be356a;
+  --color-tp-orange: #d68e54;
+  --color-tp-turquoise: #74c6c6;
+  --color-tp-encre: #1e1e1e;
+  --color-tp-creme: #fff9f1;
+  --color-tp-sable: #f4ece0;
 }
 
 html {

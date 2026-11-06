@@ -21,6 +21,10 @@
 	},
 	// Garde les variables saisies dans le tableau de bord Cloudflare à chaque mise en ligne
 	"keep_vars": true,
+	// Clé publique Supabase (sert seulement à envoyer et vérifier le lien de connexion admin)
+	"vars": {
+		"SUPABASE_ANON_KEY": "sb_publishable_sHuAj5IV-cKh06-xoz_kKg_tta-2v3a"
+	},
 	"observability": {
 		"enabled": true
 	}
