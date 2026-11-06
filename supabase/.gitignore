@@ -1,0 +1,4 @@
+# Fichiers clients : ne jamais les versionner
+*.csv
+*.xlsx
+import*.sql

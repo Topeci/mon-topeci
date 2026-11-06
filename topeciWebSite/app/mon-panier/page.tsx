@@ -33,6 +33,7 @@ import {
   type ShippingMethod,
   getShippingQuote,
 } from "../lib/shipping";
+import { lireSuivi } from "../lib/suivi";
 
 type CartProduct = {
   id: string;
@@ -195,6 +196,7 @@ export default function MonPanierPage() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [consents, setConsents] = useState({ whatsapp: false, email: false });
   const [market] = useMarket();
   const [selectedMethod, setShippingMethod] = useState<ShippingMethod | null>(
     null,
@@ -332,6 +334,36 @@ export default function MonPanierPage() {
       `${shippingQuote.isMinimum ? "À partir de " : ""}${price(grandTotal)}`,
     );
     formData.append("CGV acceptées", acceptedTerms ? "Oui" : "Non");
+    formData.append(
+      "Accepte les offres",
+      [consents.whatsapp && "WhatsApp", consents.email && "Email"]
+        .filter(Boolean)
+        .join(" + ") || "Non",
+    );
+
+    // Enregistrement dans la base clients, en parallèle de l'email.
+    // S'il échoue, la commande part quand même par email.
+    const enregistrement = fetch("/api/commande", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        marche: market,
+        client: {
+          ...customerInfos,
+          consent_whatsapp: consents.whatsapp,
+          consent_email: consents.email,
+        },
+        lignes: cart.map((item) => ({
+          produit_id: item.id,
+          quantite: item.quantity,
+        })),
+        livraison_mode: shippingMethod,
+        livraison_detail: shippingQuote.detail,
+        frais_livraison: shippingQuote.amount ?? 0,
+        total_est_minimum: shippingQuote.isMinimum,
+        suivi: lireSuivi(),
+      }),
+    }).catch(() => null);
 
     try {
       const response = await fetch(
@@ -348,6 +380,8 @@ export default function MonPanierPage() {
       if (!response.ok) {
         throw new Error("Erreur lors de l’envoi de la commande.");
       }
+
+      await enregistrement;
 
       setOrderSummary({
         lines: cart.map((item) => ({
@@ -369,6 +403,7 @@ export default function MonPanierPage() {
 
       setCart([]);
       setAcceptedTerms(false);
+      setConsents({ whatsapp: false, email: false });
       setShippingMethod(null);
       setZone(null);
 
@@ -983,6 +1018,37 @@ export default function MonPanierPage() {
                         applicables à ma commande.
                       </span>
                     </label>
+
+                    <fieldset className="rounded-2xl border border-slate-200 p-4 text-sm leading-6 text-slate-600">
+                      <legend className="px-1 font-title text-sm font-semibold text-[#5C7DB8]">
+                        Restons en contact (facultatif)
+                      </legend>
+                      <label className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={consents.whatsapp}
+                          onChange={(event) =>
+                            setConsents((c) => ({ ...c, whatsapp: event.target.checked }))
+                          }
+                          className="mt-1 h-4 w-4 shrink-0 accent-[#79C8C7]"
+                        />
+                        <span>Je veux recevoir les nouveautés et offres TOPECI sur WhatsApp.</span>
+                      </label>
+                      <label className="mt-2 flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={consents.email}
+                          onChange={(event) =>
+                            setConsents((c) => ({ ...c, email: event.target.checked }))
+                          }
+                          className="mt-1 h-4 w-4 shrink-0 accent-[#79C8C7]"
+                        />
+                        <span>Je veux les recevoir par email.</span>
+                      </label>
+                      <p className="mt-2 text-xs text-slate-500">
+                        Désinscription à tout moment, en un message.
+                      </p>
+                    </fieldset>
 
                     <button
                       type="submit"

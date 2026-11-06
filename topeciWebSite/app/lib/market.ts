@@ -25,17 +25,9 @@ export const MARKETS: Record<
   },
 };
 
-/**
- * Prix de chaque produit selon le marché.
- * Pour changer un prix, modifier uniquement ce tableau.
- */
-export const PRODUCT_PRICES: Record<string, Record<Market, number>> = {
-  "livre-audio-baoule": { CI: 15000, EUR: 30 },
-  "livre-audio-dioula": { CI: 15000, EUR: 30 },
-  "cartes-audio-bete": { CI: 15000, EUR: 30 },
-};
-
-const DEFAULT_PRICE: Record<Market, number> = { CI: 15000, EUR: 30 };
+/** Prix de chaque produit selon le marché : voir lib/prices.ts */
+export { PRODUCT_PRICES } from "./prices";
+import { PRODUCT_PRICES, DEFAULT_PRICE } from "./prices";
 
 export function getProductPrice(productId: string, market: Market): number {
   return (PRODUCT_PRICES[productId] ?? DEFAULT_PRICE)[market];
