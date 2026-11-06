@@ -13,7 +13,7 @@ create extension if not exists pgcrypto;
 --   "00225..."              -> +225...
 -- ---------------------------------------------------------------------
 create or replace function normaliser_telephone(t text, marche text default 'CI')
-returns text language plpgsql immutable as $$
+returns text language plpgsql immutable set search_path = public as $$
 declare d text;
 begin
   if t is null or btrim(t) = '' then return null; end if;
@@ -102,6 +102,7 @@ create table if not exists commandes (
 );
 create index if not exists commandes_contact_idx on commandes (contact_id);
 create index if not exists commandes_created_idx on commandes (created_at);
+create index if not exists commandes_ambassadeur_idx on commandes (code_ambassadeur);
 
 create table if not exists lignes_commande (
   id             uuid primary key default gen_random_uuid(),
@@ -127,7 +128,7 @@ alter table lignes_commande enable row level security;
 -- Langue d'un produit a partir de son identifiant
 -- ---------------------------------------------------------------------
 create or replace function langue_produit(produit text)
-returns text language sql immutable as $$
+returns text language sql immutable set search_path = public as $$
   select case
     when produit ilike '%baoule%' then 'baoule'
     when produit ilike '%dioula%' then 'dioula'
@@ -143,7 +144,7 @@ $$;
 --          un consentement donne n'est jamais retire automatiquement.
 -- ---------------------------------------------------------------------
 create or replace function enregistrer_contact(p jsonb)
-returns uuid language plpgsql as $$
+returns uuid language plpgsql set search_path = public as $$
 declare
   v_marche text := nullif(p->>'marche','');
   v_tel    text := normaliser_telephone(p->>'telephone', coalesce(v_marche,'CI'));
@@ -207,7 +208,7 @@ end $$;
 --      code_ambassadeur, lignes:[{produit_id, produit_nom, quantite, prix_unitaire}]}
 -- ---------------------------------------------------------------------
 create or replace function enregistrer_commande(p jsonb)
-returns jsonb language plpgsql as $$
+returns jsonb language plpgsql set search_path = public as $$
 declare
   v_client  jsonb := coalesce(p->'client','{}'::jsonb);
   v_langs   jsonb;
@@ -262,12 +263,14 @@ end $$;
 -- Les fonctions ne sont appelables qu'avec la cle serveur (service_role)
 revoke execute on function enregistrer_contact(jsonb)  from public, anon, authenticated;
 revoke execute on function enregistrer_commande(jsonb) from public, anon, authenticated;
+revoke execute on function normaliser_telephone(text, text) from public, anon, authenticated;
+revoke execute on function langue_produit(text) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------
 -- VUES pour piloter (Supabase > Table Editor, ou export CSV)
 -- ---------------------------------------------------------------------
 drop view if exists v_objectifs, v_commissions, v_ventes_jour, v_liste_whatsapp, v_clients;
-create or replace view v_clients as
+create view v_clients with (security_invoker = true) as
 select c.id, c.prenom, c.nom, c.telephone, c.email, c.ville, c.pays, c.marche,
        c.langues_interet, c.ages_enfants, c.source_premiere, c.sources, c.code_ambassadeur,
        c.consent_whatsapp, c.consent_email, c.desinscrit,
@@ -282,14 +285,14 @@ left join lignes_commande lc on lc.commande_id = o.id
 group by c.id;
 
 -- Pret pour une liste de diffusion WhatsApp : accord donne, pas desinscrit
-create or replace view v_liste_whatsapp as
+create view v_liste_whatsapp with (security_invoker = true) as
 select prenom, nom, telephone, ville, pays, langues_interet, langues_achetees, nb_commandes
 from v_clients
 where consent_whatsapp and not desinscrit and telephone is not null
 order by created_at desc;
 
 -- Ventes par jour, par langue et par canal (suivi de campagne)
-create or replace view v_ventes_jour as
+create view v_ventes_jour with (security_invoker = true) as
 select date_trunc('day', o.created_at)::date as jour, o.canal, o.marche, o.devise, lc.langue,
        count(distinct o.id) as commandes, sum(lc.quantite) as jouets,
        sum(lc.quantite * lc.prix_unitaire) as chiffre_affaires
@@ -299,7 +302,7 @@ group by 1,2,3,4,5
 order by 1 desc;
 
 -- Commissions dues aux ambassadeurs
-create or replace view v_commissions as
+create view v_commissions with (security_invoker = true) as
 select a.code, a.nom, count(distinct o.id) as commandes, coalesce(sum(lc.quantite),0) as jouets,
        coalesce(sum(lc.quantite),0) * a.commission_par_jouet as commission_fcfa
 from ambassadeurs a
@@ -308,7 +311,7 @@ left join lignes_commande lc on lc.commande_id = o.id
 group by a.code, a.nom, a.commission_par_jouet;
 
 -- Compteur vers l'objectif : 1 000 contacts au 31 decembre
-create or replace view v_objectifs as
+create view v_objectifs with (security_invoker = true) as
 select (select count(*) from contacts)                                         as contacts,
        1000                                                                    as objectif_contacts,
        (select count(*) from contacts where consent_whatsapp and not desinscrit) as contacts_whatsapp,
