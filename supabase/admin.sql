@@ -14,7 +14,7 @@ revoke all on admins from anon, authenticated;
 
 insert into admins (email, nom) values
   ('bonijeanm@gmail.com', 'Jean-Marc'),
-  ('ornellakouakouakou29@gmail.com', 'Cindy')
+  ('ornellakouakou29@gmail.com', 'Cindy')
 on conflict (email) do nothing;
 
 -- Commissions versées aux ambassadeurs
